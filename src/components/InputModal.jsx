@@ -24,11 +24,12 @@ export default function InputModal({
     setAutomotiveData: PropTypes.func.isRequired,
     setFilteredData: PropTypes.func.isRequired,
   };
+  const [cancelDialogOpen, setCancelDialogOpen] = useState(false);
 
   const [current, setCurrent] = useState(0);
   const [filteredGeoData, setFilteredGeoData] = useState([]);
   const [selectedData, setSelectedData] = useState({
-    regions: true,
+    regions: false,
     countries: false,
     marketTeams: false,
     markets: false,
@@ -91,6 +92,7 @@ export default function InputModal({
       ranking_metric: undefined,
     });
     setIsDialogOpen(false);
+    setCancelDialogOpen(false);
     setCurrent(0);
   };
 
@@ -179,8 +181,7 @@ export default function InputModal({
       // Check if entry exists in automotiveData based on country & LOB
       const exists = automotiveData.some((auto) =>
         auto.Details.some(
-          (detail) =>
-            detail.country === entry.country && detail.LOB === entry.LOB
+          (detail) => detail.Geo === entry.Country && detail.LOB === entry.LOB
         )
       );
 
@@ -200,6 +201,7 @@ export default function InputModal({
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [finalData]);
+
   const nextButtonHandler = () => {
     setError({
       geo: false,
@@ -208,6 +210,7 @@ export default function InputModal({
       same_day_domestic: false,
       ranking_metric: false,
     });
+
     if (filteredGeoData.length === 0) {
       setError((prev) => ({ ...prev, geo: true }));
       return;
@@ -231,8 +234,13 @@ export default function InputModal({
 
     const finalData = [];
 
+    // 🔹 Identify the most recent `true` level in `selectedData`
+    const activeLevel = Object.keys(selectedData)
+      .reverse()
+      .find((key) => selectedData[key]); // Gets the last `true` key
+
     filteredGeoData.forEach((region) => {
-      const regionData = {
+      let regionData = {
         Geo: region.region || "",
         Country: "",
         Market_Team: "",
@@ -241,86 +249,71 @@ export default function InputModal({
         LOB: "",
         RTM: selectableData.rtm || "",
         Domestric: selectableData.same_day_domestic || "",
+        ranking_metric: selectableData.ranking_metric || "",
+        benchmark_logic_type: selectableData.benchmark_logic_type || "",
         Metric_type: InputData.metric_type || "",
         Benchmark_value: InputData.benchmark_value || "",
         Metric_Weightage: InputData.metric_weightage || "",
+        Metric_Ceiling: InputData.metric_ceiling || "",
+        Metric_Floor: InputData.metric_floor || "",
+        Metric_Sign: InputData.metric_sign || "",
+        Benchmark_Ceiling: InputData.benchmark_ceiling || "",
       };
 
-      if (!region.country || region.country.length === 0) {
-        if (selectableData.lob.length > 0) {
-          selectableData.lob.forEach((lob) => {
-            finalData.push({ ...regionData, LOB: lob });
-          });
-        } else {
-          finalData.push(regionData);
-        }
+      if (activeLevel === "regions") {
+        selectableData.lob.forEach((lob) => {
+          finalData.push({ ...regionData, LOB: lob });
+        });
         return;
       }
 
-      region.country.forEach((country) => {
-        const countryData = {
+      region.country?.forEach((country) => {
+        let countryData = {
           ...regionData,
           Country: country.Country_Name || "",
         };
 
-        if (!country.Market_Team || country.Market_Team.length === 0) {
-          if (selectableData.lob.length > 0) {
-            selectableData.lob.forEach((lob) => {
-              finalData.push({ ...countryData, LOB: lob });
-            });
-          } else {
-            finalData.push(countryData);
-          }
+        if (activeLevel === "countries") {
+          selectableData.lob.forEach((lob) => {
+            finalData.push({ ...countryData, LOB: lob });
+          });
           return;
         }
 
-        country.Market_Team.forEach((team) => {
-          const teamData = {
+        country.Market_Team?.forEach((team) => {
+          let teamData = {
             ...countryData,
             Market_Team: team.Market_Team_Name || "",
           };
 
-          if (!team.Market || team.Market.length === 0) {
-            if (selectableData.lob.length > 0) {
-              selectableData.lob.forEach((lob) => {
-                finalData.push({ ...teamData, LOB: lob });
-              });
-            } else {
-              finalData.push(teamData);
-            }
+          if (activeLevel === "marketTeams") {
+            selectableData.lob.forEach((lob) => {
+              finalData.push({ ...teamData, LOB: lob });
+            });
             return;
           }
 
-          team.Market.forEach((market) => {
-            const marketData = {
-              ...teamData,
-              Market: market.Market_Name || "",
-            };
+          team.Market?.forEach((market) => {
+            let marketData = { ...teamData, Market: market.Market_Name || "" };
 
-            if (!market.Store || market.Store.length === 0) {
-              if (selectableData.lob.length > 0) {
-                selectableData.lob.forEach((lob) => {
-                  finalData.push({ ...marketData, LOB: lob });
-                });
-              } else {
-                finalData.push(marketData);
-              }
+            if (activeLevel === "markets") {
+              selectableData.lob.forEach((lob) => {
+                finalData.push({ ...marketData, LOB: lob });
+              });
               return;
             }
 
-            market.Store.forEach((store) => {
-              const storeData = {
-                ...marketData,
-                Store: store.Store_Name || "",
-              };
+            market.Store?.forEach((store) => {
+              let storeData = { ...marketData, Store: store.Store_Name || "" };
 
-              if (selectableData.lob.length > 0) {
+              if (activeLevel === "stores") {
                 selectableData.lob.forEach((lob) => {
                   finalData.push({ ...storeData, LOB: lob });
                 });
-              } else {
-                finalData.push(storeData);
+                return;
               }
+
+              finalData.push(storeData);
             });
           });
         });
@@ -664,58 +657,30 @@ export default function InputModal({
 
   const getSelectedMarketTeamCount = () => {
     return filteredGeoData.reduce((count, region) => {
-      const selectedMarketTeams = region.country?.reduce(
-        (teamsCount, country) => {
-          const selectedTeams = country.Market_Team?.filter((team) =>
-            filteredGeoData.some(
-              (selected) =>
-                selected.region === region.region &&
-                selected.country.some(
-                  (c) =>
-                    c.Country_Name === country.Country_Name &&
-                    c.Market_Team.some(
-                      (t) => t.Market_Team_Name === team.Market_Team_Name
-                    )
-                )
-            )
+      return (
+        count +
+        (region.country?.reduce((teamsCount, country) => {
+          return (
+            teamsCount + (country.Market_Team?.length || 0) // ✅ Directly count Market_Team
           );
-          return teamsCount + selectedTeams?.length || 0;
-        },
-        0
+        }, 0) || 0)
       );
-      return count + selectedMarketTeams;
     }, 0);
   };
 
   const getSelectedMarketCount = () => {
     return filteredGeoData.reduce((count, region) => {
-      const selectedMarkets = region.country.reduce((marketsCount, country) => {
-        const selectedMarketsInCountry = country.Market_Team?.reduce(
-          (marketCount, team) => {
-            const selectedMarketsInTeam = team.Market?.filter((market) =>
-              filteredGeoData.some(
-                (selected) =>
-                  selected.region === region.region &&
-                  selected.country.some(
-                    (c) =>
-                      c.Country_Name === country.Country_Name &&
-                      c.Market_Team.some(
-                        (t) =>
-                          t.Market_Team_Name === team.Market_Team_Name &&
-                          t.Market.some(
-                            (m) => m.Market_Name === market.Market_Name
-                          )
-                      )
-                  )
-              )
-            );
-            return marketCount + (selectedMarketsInTeam?.length || 0);
-          },
-          0
-        );
-        return marketsCount + selectedMarketsInCountry || 0;
-      }, 0);
-      return count + selectedMarkets;
+      return (
+        count +
+        (region.country?.reduce((marketsCount, country) => {
+          return (
+            marketsCount +
+            (country.Market_Team?.reduce((marketCount, team) => {
+              return marketCount + (team.Market?.length || 0); // ✅ Direct count
+            }, 0) || 0)
+          );
+        }, 0) || 0)
+      );
     }, 0);
   };
 
@@ -764,6 +729,18 @@ export default function InputModal({
   return (
     <div>
       <Modal
+        open={cancelDialogOpen}
+        onCancel={() => setCancelDialogOpen(false)}
+        onOk={() => cancelButtonHandler()}
+        okText="Yes"
+        cancelText="No"
+        centered
+      >
+        <p className="font-medium p-2">
+          Are you sure you want to clear all the selected data?
+        </p>
+      </Modal>
+      <Modal
         centered={true}
         open={isDialogOpen}
         width={1300}
@@ -773,7 +750,7 @@ export default function InputModal({
           <div className="flex gap-2 justify-end">
             <button
               className="border px-4 py-1 rounded-md"
-              onClick={cancelButtonHandler}
+              onClick={() => setCancelDialogOpen(true)}
             >
               Cancel
             </button>
@@ -1372,9 +1349,6 @@ export default function InputModal({
                       <td className="text-center">LOB</td>
                       <td className="text-center">RTM</td>
                       <td className="text-center">Same day Domestic</td>
-                      <td className="text-center">Market Team</td>
-                      <td className="text-center">Market</td>
-                      <td>Store</td>
                       <td className="text-center">Metric Weightage</td>
                       <td>Metric Type</td>
                       <td>Benchmark Value</td>
@@ -1389,15 +1363,12 @@ export default function InputModal({
                         <td className="p-2">{`${
                           selectedMetric?.Metric_Name + " - " + data.LOB
                         }`}</td>
-                        <td className="text-center">{data.Country || "-"}</td>
+                        <td className="text-center">
+                          {data.Country || data.Geo || "-"}
+                        </td>
                         <td className="text-center">{data.LOB || "-"}</td>
                         <td className="text-center">{data.RTM || "-"}</td>
                         <td className="text-center">{data.Domestric || "-"}</td>
-                        <td className="text-center">
-                          {data.Market_Team || "-"}
-                        </td>
-                        <td className="text-center">{data.Market || "-"}</td>
-                        <td className="text-center">{data.Store || "-"}</td>
                         <td className="text-center">
                           {data.Metric_Weightage || "-"}
                         </td>
@@ -1420,9 +1391,6 @@ export default function InputModal({
                       <td className="text-center">LOB</td>
                       <td className="text-center">RTM</td>
                       <td className="text-center">Same day Domestic</td>
-                      <td className="text-center">Market Team</td>
-                      <td className="text-center">Market</td>
-                      <td>Store</td>
                       <td className="text-center">Metric Weightage</td>
                       <td>Metric Type</td>
                       <td>Benchmark Value</td>
@@ -1437,15 +1405,12 @@ export default function InputModal({
                         <td className="p-2">{`${
                           selectedMetric?.Metric_Name + " - " + data.LOB
                         }`}</td>
-                        <td className="text-center">{data.Country || "-"}</td>
+                        <td className="text-center">
+                          {data.Country || data.Geo || "-"}
+                        </td>
                         <td className="text-center">{data.LOB || "-"}</td>
                         <td className="text-center">{data.RTM || "-"}</td>
                         <td className="text-center">{data.Domestric || "-"}</td>
-                        <td className="text-center">
-                          {data.Market_Team || "-"}
-                        </td>
-                        <td className="text-center">{data.Market || "-"}</td>
-                        <td className="text-center">{data.Store || "-"}</td>
                         <td className="text-center">
                           {data.Metric_Weightage || "-"}
                         </td>

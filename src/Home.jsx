@@ -21,6 +21,12 @@ const data = [
         Metric_type: "%",
         Benchmark_value: "20",
         Metric_Weightage: "5",
+        Metric_Ceiling: "10",
+        Metric_Floor: "5",
+        Metric_Sign: "15",
+        Benchmark_Ceiling: "10",
+        Benchmark_Logic_type: "slope",
+        Ranking_Metric: "1",
       },
       {
         Geo: "USA",
@@ -30,6 +36,12 @@ const data = [
         Metric_type: "%",
         Benchmark_value: "25",
         Metric_Weightage: "5",
+        Metric_Ceiling: "10",
+        Metric_Floor: "5",
+        Metric_Sign: "15",
+        Benchmark_Ceiling: "10",
+        Benchmark_Logic_type: "slope",
+        Ranking_Metric: "1",
       },
       {
         Geo: "Uk",
@@ -39,6 +51,12 @@ const data = [
         Metric_type: "%",
         Benchmark_value: "30",
         Metric_Weightage: "5",
+        Metric_Ceiling: "10",
+        Metric_Floor: "5",
+        Metric_Sign: "15",
+        Benchmark_Ceiling: "10",
+        Benchmark_Logic_type: "slope",
+        Ranking_Metric: "1",
       },
     ],
   },
@@ -54,6 +72,12 @@ const data = [
         Metric_type: "%",
         Benchmark_value: "20",
         Metric_Weightage: "5",
+        Metric_Ceiling: "10",
+        Metric_Floor: "5",
+        Metric_Sign: "15",
+        Benchmark_Ceiling: "10",
+        Benchmark_Logic_type: "slope",
+        Ranking_Metric: "1",
       },
       {
         Geo: "USA",
@@ -63,6 +87,12 @@ const data = [
         Metric_type: "%",
         Benchmark_value: "25",
         Metric_Weightage: "5",
+        Metric_Ceiling: "10",
+        Metric_Floor: "5",
+        Metric_Sign: "15",
+        Benchmark_Ceiling: "10",
+        Benchmark_Logic_type: "slope",
+        Ranking_Metric: "1",
       },
       {
         Geo: "USA",
@@ -72,6 +102,12 @@ const data = [
         Metric_type: "%",
         Benchmark_value: "30",
         Metric_Weightage: "10",
+        Metric_Ceiling: "10",
+        Metric_Floor: "5",
+        Metric_Sign: "15",
+        Benchmark_Ceiling: "10",
+        Benchmark_Logic_type: "slope",
+        Ranking_Metric: "1",
       },
     ],
   },
@@ -81,6 +117,7 @@ function Home() {
   const [automotiveData, setAutomotiveData] = useState(data);
   const [filteredData, setFilteredData] = useState(automotiveData);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
+
   const [filterVisible, setFilterVisible] = useState({
     Domestric: false,
     RTM: false,
@@ -202,11 +239,15 @@ function Home() {
   };
 
   const filterByMetricName = (value) => {
-    setFilteredData(automotiveData.filter((item) => value.includes(item.Metric_Name)));
+    setFilteredData(
+      automotiveData.filter((item) => value.includes(item.Metric_Name))
+    );
   };
 
   const filterByMetricID = (value) => {
-    setFilteredData(automotiveData.filter((item) => value.includes(item.Metric_ID)));
+    setFilteredData(
+      automotiveData.filter((item) => value.includes(item.Metric_ID))
+    );
   };
 
   const filterByWeightageValue = (Metric_ID, value) => {
@@ -270,7 +311,9 @@ function Home() {
 
     if (areAllDetailsVisible) {
       // Hide all details by setting them to null
-      setFilteredData(automotiveData.map((item) => ({ ...item, Details: null })));
+      setFilteredData(
+        automotiveData.map((item) => ({ ...item, Details: null }))
+      );
     } else {
       // Show all details by restoring them from the original data
       setFilteredData(automotiveData);
@@ -287,8 +330,11 @@ function Home() {
         setAutomotiveData={setAutomotiveData}
         setFilteredData={setFilteredData}
       />
-      <div className="flex justify-end w-[80%]">
-        <button className="font-medium" onClick={toggleAllDetailsHandler}>
+      <div className="flex justify-end w-[98%] gap-2 my-2">
+        <button
+          className="font-medium bg-blue-400 p-2 rounded-md text-white"
+          onClick={toggleAllDetailsHandler}
+        >
           {filteredData.every(
             (item) => item.Details && item.Details.length > 0
           ) ? (
@@ -297,28 +343,33 @@ function Home() {
             <>Expand All</>
           )}
         </button>
+        <button className="font-medium p-2 bg-red-500 rounded-md text-white">
+          Delete
+        </button>
       </div>
       <table className="table-auto w-full">
         <thead className="bg-slate-100 ">
           <tr className=" ">
             <th className="text-sm p-3">Actions</th>
-            <th className="text-sm p-3">
-              <div className="flex items-center gap-2">
-                <BsFilterCircle
-                  size={18}
-                  onClick={() =>
-                    setFilterVisible((prev) => ({
-                      ...prev,
-                      Metric_ID: !prev.Metric_ID,
-                    }))
-                  }
-                  className="cursor-pointer"
-                />
-                Metric ID
+            <th className="text-sm p-3 ">
+              <div className="flex items-center gap-2 ">
+                <div className="">
+                  <BsFilterCircle
+                    size={18}
+                    onClick={() =>
+                      setFilterVisible((prev) => ({
+                        ...prev,
+                        Metric_ID: !prev.Metric_ID,
+                      }))
+                    }
+                    className="cursor-pointer"
+                  />
+                </div>
+                <p>Metric ID</p>
               </div>
             </th>
-            <th className="text-sm p-3">
-              <div className="flex items-center gap-2">
+            <th className="text-sm p-3 flex items-center gap-2">
+              <div className=" ">
                 <BsFilterCircle
                   size={18}
                   onClick={() =>
@@ -329,8 +380,8 @@ function Home() {
                   }
                   className="cursor-pointer"
                 />
-                Metric Name
               </div>
+              <p>Metric Name</p>
             </th>
             <th className="text-sm p-3">
               <div className="flex items-center gap-2">
@@ -388,6 +439,12 @@ function Home() {
             <th className="text-sm p-3">Metric Type</th>
             <th className="text-sm p-3">Benchmark value</th>
             <th className="text-sm p-3">Metric Weightage</th>
+            <th className="text-sm p-3">Metric Ceiling</th>
+            <th className="text-sm p-3">Metric Floor</th>
+            <th className="text-sm p-3">Metric Sign</th>
+            <th className="text-sm p-3">Benchmark Ceiling</th>
+            <th className="text-sm p-3">Benchmark Logic type</th>
+            <th className="text-sm p-3">Ranking Metric</th>
           </tr>
           <tr>
             <td></td>
@@ -499,7 +556,7 @@ function Home() {
           {filteredData.map((item, i) => (
             <Fragment key={i}>
               <tr className="bg-gray-200 border-b border-slate-400 ">
-                <td className=" ">
+                <td className="flex justify-center">
                   <button
                     className="flex justify-center"
                     onClick={() => openModal(item.Metric_ID, item.Metric_Name)}
@@ -547,6 +604,7 @@ function Home() {
                     />
                   </div>
                 </td>
+                <td colSpan={6}></td>
               </tr>
               {item.Details?.map((insideItem, i) => (
                 <tr key={i} className="border-b border-slate-400">
@@ -563,6 +621,18 @@ function Home() {
                   <td className="text-center">
                     {insideItem.Metric_Weightage}%
                   </td>
+                  <td className="text-center">
+                    {insideItem.Benchmark_Ceiling}
+                  </td>
+                  <td className="text-center">{insideItem.Metric_Floor}</td>
+                  <td className="text-center">{insideItem.Metric_Sign}</td>
+                  <td className="text-center">
+                    {insideItem.Benchmark_Ceiling}
+                  </td>
+                  <td className="text-center">
+                    {insideItem.Benchmark_Logic_type}
+                  </td>
+                  <td className="text-center">{insideItem.Ranking_Metric}</td>
                 </tr>
               ))}
             </Fragment>
