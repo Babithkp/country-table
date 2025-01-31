@@ -1,9 +1,9 @@
-import { Checkbox, Modal, Steps, TreeSelect } from "antd";
-import { useEffect, useState } from "react";
+import { Checkbox, Modal, Steps, TreeSelect } from "antd";import { useEffect, useState } from "react";
 import { IoSearch } from "react-icons/io5";
 import { Select } from "antd";
 import { GEOData } from "../constant";
 import PropTypes from "prop-types";
+import "./inputModal.scss";
 
 export default function InputModal({
   isDialogOpen,
@@ -737,7 +737,7 @@ export default function InputModal({
         cancelText="No"
         centered
       >
-        <p className="font-medium p-2">
+        <p className="modal-text">
           Are you sure you want to clear all the selected data?
         </p>
       </Modal>
@@ -748,34 +748,25 @@ export default function InputModal({
         height={600}
         onCancel={() => setIsDialogOpen(false)}
         footer={() => (
-          <div className="flex gap-2 justify-end">
+          <div className="modal-footer">
             <button
-              className="border px-4 py-1 rounded-md"
+              className="btn-cancel"
               onClick={() => setCancelDialogOpen(true)}
             >
               Cancel
             </button>
             {current === 0 && (
-              <button
-                className="bg-blue-500 text-white px-3 py-1 rounded-md"
-                onClick={nextButtonHandler}
-              >
+              <button className="btn-next" onClick={nextButtonHandler}>
                 Next
               </button>
             )}
             {current === 1 && (
-              <button
-                className="border px-4 py-1 rounded-md"
-                onClick={() => setCurrent(0)}
-              >
+              <button className="btn-back" onClick={() => setCurrent(0)}>
                 Back
               </button>
             )}
             {current === 1 && (
-              <button
-                className="bg-blue-500 text-white px-3 py-1 rounded-md"
-                onClick={createButtonHandler}
-              >
+              <button className="btn-create" onClick={createButtonHandler}>
                 Create
               </button>
             )}
@@ -786,9 +777,9 @@ export default function InputModal({
           <h4 className="text-2xl font-medium text-center">
             {selectedMetric?.Metric_Name}
           </h4>
-          <div className="flex justify-center">
+          <div className="steps-wrapper">
             <Steps
-              className="w-[30%]"
+              className="steps-container"
               size="small"
               items={[
                 { key: "configure", title: "Configure" },
@@ -800,349 +791,340 @@ export default function InputModal({
           </div>
           {current === 0 && (
             <>
-              <div>
-                <div className="flex items-center gap-1">
-                  <p className="text-lg font-medium">Geo</p>
+              <div className="geo-container">
+                <div className="geo-header">
+                  <p className="geo-title">Geo</p>
                   <IoSearch size={20} />
                 </div>
-                <div className="flex justify-center ">
-                  <div className="flex w-[98%] gap-3">
-                    <div className=" w-[50%]">
-                      <p>Region ({filteredGeoData.length})</p>
-                      <div className="border rounded-lg h-[15rem]">
-                        <div className="border-b p-2 flex gap-2">
-                          <Checkbox
-                            id="ww"
-                            checked={isAllSelected}
-                            onChange={addDataToSelectedRegion}
-                          />
-                          <label htmlFor="ww">ww</label>
-                        </div>
-                        {GEOData.map((item, i) => (
-                          <div key={i} className="p-2 flex gap-2">
-                            <Checkbox
-                              id={item.region}
-                              onChange={addDataToSelectedRegion}
-                              checked={filteredGeoData.some(
-                                (selected) => selected.region === item.region
-                              )}
-                            />
-                            <label htmlFor={item.region}>{item.region}</label>
-                          </div>
-                        ))}
+                <div className="geo-content">
+                  <div className="geo-section">
+                    <p>Region ({filteredGeoData.length})</p>
+                    <div className="geo-list">
+                      <div className="geo-item-ww">
+                        <Checkbox
+                          id="ww"
+                          checked={isAllSelected}
+                          onChange={addDataToSelectedRegion}
+                        />
+                        <label htmlFor="ww">ww</label>
                       </div>
+                      {GEOData.map((item, i) => (
+                        <div key={i} className="geo-item">
+                          <Checkbox
+                            id={item.region}
+                            onChange={addDataToSelectedRegion}
+                            checked={filteredGeoData.some(
+                              (selected) => selected.region === item.region
+                            )}
+                          />
+                          <label htmlFor={item.region}>{item.region}</label>
+                        </div>
+                      ))}
                     </div>
-                    <div className=" w-[50%]">
-                      <p>Country ({getSelectedCountryCount()})</p>
-                      <div className="border rounded-lg h-[15rem] overflow-y-auto">
-                        {filteredGeoData.map((item) => {
-                          const regionData = GEOData.find(
-                            (geo) => geo?.region === item?.region
-                          );
-                          return regionData?.country?.map((country) => {
-                            const isCountrySelected = item.country?.some(
-                              (selectedCountry) =>
-                                selectedCountry.Country_Name ===
-                                country.Country_Name
-                            );
+                  </div>
 
-                            return (
+                  {/* Country Section */}
+                  <div className="geo-section">
+                    <p>Country ({getSelectedCountryCount()})</p>
+                    <div className="geo-list geo-country-list">
+                      {filteredGeoData.map((item) => {
+                        const regionData = GEOData.find(
+                          (geo) => geo?.region === item?.region
+                        );
+                        return regionData?.country?.map((country) => {
+                          const isCountrySelected = item.country?.some(
+                            (selectedCountry) =>
+                              selectedCountry.Country_Name ===
+                              country.Country_Name
+                          );
+                          return (
+                            <div
+                              key={country.Country_Name}
+                              className="geo-item"
+                            >
+                              <Checkbox
+                                id={country.Country_Name}
+                                onChange={(event) =>
+                                  addDataOfSelectedCountry(event, item.region)
+                                }
+                                checked={isCountrySelected}
+                              />
+                              <label htmlFor={country.Country_Name}>
+                                {country.Country_Name}
+                              </label>
+                            </div>
+                          );
+                        });
+                      })}
+                      {!selectedData.regions && (
+                        <div className="empty-state">
+                          <p>Select a Region to see the list of countries</p>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+
+                  {/* Market Team Section */}
+                  <div className="geo-section">
+                    <p>Market Team ({getSelectedMarketTeamCount()})</p>
+                    <div className="geo-list geo-market-team-list">
+                      {filteredGeoData.map((item) => (
+                        <div key={item.region}>
+                          {item.country && item.country.length > 0 ? (
+                            item.country.map((country) => {
+                              const regionData = GEOData.find(
+                                (geo) => geo.region === item.region
+                              );
+                              const selectedCountry = regionData?.country.find(
+                                (c) => c.Country_Name === country.Country_Name
+                              );
+                              return selectedCountry?.Market_Team.map(
+                                (team, index) => (
+                                  <div key={index} className="geo-item">
+                                    <Checkbox
+                                      id={team.Market_Team_Name}
+                                      onChange={(e) =>
+                                        addDataOfSelectedMarketTeam(
+                                          e,
+                                          item.region,
+                                          country.Country_Name,
+                                          team.Market_Team_Name
+                                        )
+                                      }
+                                      checked={
+                                        country.Market_Team?.some(
+                                          (selectedTeam) =>
+                                            selectedTeam.Market_Team_Name ===
+                                            team.Market_Team_Name
+                                        ) || false
+                                      }
+                                    />
+                                    <label htmlFor={team.Market_Team_Name}>
+                                      {team.Market_Team_Name}
+                                    </label>
+                                  </div>
+                                )
+                              );
+                            })
+                          ) : (
+                            <></>
+                          )}
+                        </div>
+                      ))}
+                      {!selectedData.countries && (
+                        <div className="empty-state">
+                          <p>Select a Country to see the list of Market Team</p>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+
+                  {/* Market Section */}
+                  <div className="geo-section">
+                    <p>Market ({getSelectedMarketCount()})</p>
+                    <div className="geo-list geo-market-list">
+                      {filteredGeoData.map((item) => {
+                        const regionData = GEOData.find(
+                          (geo) => geo.region === item.region
+                        );
+                        return regionData?.country?.map((country) => {
+                          const selectedCountry = item.country?.find(
+                            (c) => c.Country_Name === country.Country_Name
+                          );
+                          return selectedCountry?.Market_Team?.map((team) => {
+                            const marketTeamData = country.Market_Team.find(
+                              (t) =>
+                                t.Market_Team_Name === team.Market_Team_Name
+                            );
+                            return marketTeamData?.Market?.map((market) => (
                               <div
-                                key={country.Country_Name}
-                                className="p-2 flex gap-2"
+                                key={market.Market_Name}
+                                className="geo-item"
                               >
                                 <Checkbox
-                                  id={country.Country_Name}
-                                  onChange={(event) =>
-                                    addDataOfSelectedCountry(event, item.region)
+                                  id={market.Market_Name}
+                                  onChange={(e) =>
+                                    addDataOfSelectedMarket(
+                                      e,
+                                      item.region,
+                                      country.Country_Name,
+                                      team.Market_Team_Name,
+                                      market.Market_Name
+                                    )
                                   }
-                                  checked={isCountrySelected}
-                                />
-                                <label htmlFor={country.Country_Name}>
-                                  {country.Country_Name}
-                                </label>
-                              </div>
-                            );
-                          });
-                        })}
-                        {!selectedData.regions && (
-                          <div className="h-full w-full flex justify-center items-center p-2">
-                            <p className="text-center font-medium text-slate-400">
-                              Select a Region to see the list of countries
-                            </p>
-                          </div>
-                        )}
-                      </div>
-                    </div>
-                    <div className=" w-[60%]">
-                      <p>Market Team ({getSelectedMarketTeamCount()})</p>
-                      <div className="border rounded-lg h-[15rem] overflow-y-auto">
-                        {filteredGeoData.map((item) => (
-                          <div key={item.region}>
-                            {item.country && item.country.length > 0 ? (
-                              item.country.map((country) => {
-                                const regionData = GEOData.find(
-                                  (geo) => geo.region === item.region
-                                );
-                                const selectedCountry =
-                                  regionData?.country.find(
-                                    (c) =>
-                                      c.Country_Name === country.Country_Name
-                                  );
-
-                                return selectedCountry?.Market_Team.map(
-                                  (team, index) => (
-                                    <div key={index} className="p-2 flex gap-2">
-                                      <Checkbox
-                                        id={team.Market_Team_Name}
-                                        onChange={(e) =>
-                                          addDataOfSelectedMarketTeam(
-                                            e,
-                                            item.region,
-                                            country.Country_Name,
-                                            team.Market_Team_Name
-                                          )
-                                        }
-                                        checked={
-                                          country.Market_Team?.some(
-                                            (selectedTeam) =>
-                                              selectedTeam.Market_Team_Name ===
-                                              team.Market_Team_Name
-                                          ) || false
-                                        }
-                                      />
-                                      <label htmlFor={team.Market_Team_Name}>
-                                        {team.Market_Team_Name}
-                                      </label>
-                                    </div>
-                                  )
-                                );
-                              })
-                            ) : (
-                              <></>
-                            )}
-                          </div>
-                        ))}
-                        {!selectedData.countries && (
-                          <div className="h-full w-full flex justify-center items-center p-2">
-                            <p className="text-center font-medium text-slate-400">
-                              Select a Country to see the list of Market Team
-                            </p>
-                          </div>
-                        )}
-                      </div>
-                    </div>
-                    <div className=" w-[50%]">
-                      <p>Market ({getSelectedMarketCount()})</p>
-                      <div className="border rounded-lg h-[15rem] overflow-y-auto p-2">
-                        {filteredGeoData.map((item) => {
-                          const regionData = GEOData.find(
-                            (geo) => geo.region === item.region
-                          );
-
-                          return regionData?.country?.map((country) => {
-                            const selectedCountry = item.country?.find(
-                              (c) => c.Country_Name === country.Country_Name
-                            );
-
-                            return selectedCountry?.Market_Team?.map((team) => {
-                              const marketTeamData = country.Market_Team.find(
-                                (t) =>
-                                  t.Market_Team_Name === team.Market_Team_Name
-                              );
-
-                              return marketTeamData?.Market?.map((market) => (
-                                <div
-                                  key={market.Market_Name}
-                                  className="mb-2 flex gap-2"
-                                >
-                                  <Checkbox
-                                    id={market.Market_Name}
-                                    onChange={(e) =>
-                                      addDataOfSelectedMarket(
-                                        e,
-                                        item.region,
-                                        country.Country_Name,
-                                        team.Market_Team_Name,
-                                        market.Market_Name
-                                      )
-                                    }
-                                    checked={selectedCountry?.Market_Team?.some(
-                                      (t) =>
-                                        t.Market_Team_Name ===
-                                          team.Market_Team_Name &&
-                                        t.Market?.some(
-                                          (m) =>
-                                            m.Market_Name === market.Market_Name
-                                        )
-                                    )}
-                                  />
-                                  <label htmlFor={market.Market_Name}>
-                                    {market.Market_Name}
-                                  </label>
-                                </div>
-                              ));
-                            });
-                          });
-                        })}
-                        {!selectedData.marketTeams && (
-                          <div className="h-full w-full flex justify-center items-center p-2">
-                            <p className="text-center font-medium text-slate-400">
-                              Select a Market team to see the list of Markets
-                            </p>
-                          </div>
-                        )}
-                      </div>
-                    </div>
-                    <div className=" w-[50%]">
-                      <p>Store ({getSelectedStoreCount()})</p>
-                      <div className="border rounded-lg h-[15rem] overflow-y-auto p-2">
-                        {filteredGeoData.map((item) =>
-                          item.country?.map((country) =>
-                            country.Market_Team?.map((team) =>
-                              team.Market?.map((selectedMarket) => {
-                                const marketData = GEOData.find(
-                                  (geo) => geo.region === item.region
-                                )
-                                  ?.country.find(
-                                    (c) =>
-                                      c.Country_Name === country.Country_Name
-                                  )
-                                  ?.Market_Team.find(
+                                  checked={selectedCountry?.Market_Team?.some(
                                     (t) =>
                                       t.Market_Team_Name ===
-                                      team.Market_Team_Name
-                                  )
-                                  ?.Market.find(
-                                    (m) =>
-                                      m.Market_Name ===
-                                      selectedMarket.Market_Name
-                                  );
-
-                                return (
-                                  marketData &&
-                                  marketData.Store.map((store) => (
-                                    <div
-                                      key={store.Store_Name}
-                                      className="mb-2 flex gap-2"
-                                    >
-                                      <Checkbox
-                                        id={store.Store_Name}
-                                        onChange={(e) =>
-                                          addDataOfSelectedStore(
-                                            e,
-                                            item.region,
-                                            country.Country_Name,
-                                            team.Market_Team_Name,
-                                            selectedMarket.Market_Name,
-                                            store.Store_Name
-                                          )
-                                        }
-                                        checked={selectedMarket?.Store?.some(
-                                          (s) =>
-                                            s.Store_Name === store.Store_Name
-                                        )}
-                                      />
-                                      <label htmlFor={store.Store_Name}>
-                                        {store.Store_Name}
-                                      </label>
-                                    </div>
-                                  ))
-                                );
-                              })
-                            )
-                          )
-                        )}
-                        {!selectedData.markets && (
-                          <div className="h-full w-full flex justify-center items-center p-2">
-                            <p className="text-center font-medium text-slate-400">
-                              Select a Market to see the list of Stores
-                            </p>
-                          </div>
-                        )}
-                      </div>
+                                        team.Market_Team_Name &&
+                                      t.Market?.some(
+                                        (m) =>
+                                          m.Market_Name === market.Market_Name
+                                      )
+                                  )}
+                                />
+                                <label htmlFor={market.Market_Name}>
+                                  {market.Market_Name}
+                                </label>
+                              </div>
+                            ));
+                          });
+                        });
+                      })}
+                      {!selectedData.marketTeams && (
+                        <div className="empty-state">
+                          <p>Select a Market team to see the list of Markets</p>
+                        </div>
+                      )}
                     </div>
+                  </div>
 
-                    <div className=" w-[50%]">
-                      <p>
-                        Selected (
-                        {selectedData.stores
-                          ? getSelectedStoreCount()
-                          : selectedData.markets
-                          ? getSelectedMarketCount()
-                          : selectedData.marketTeams
-                          ? getSelectedMarketTeamCount()
-                          : selectedData.countries
-                          ? getSelectedCountryCount()
-                          : selectedData.regions
-                          ? filteredGeoData.length
-                          : 0}
+                  {/* Store Section */}
+                  <div className="geo-section">
+                    <p>Store ({getSelectedStoreCount()})</p>
+                    <div className="geo-list geo-store-list">
+                      {filteredGeoData.map((item) =>
+                        item.country?.map((country) =>
+                          country.Market_Team?.map((team) =>
+                            team.Market?.map((selectedMarket) => {
+                              const marketData = GEOData.find(
+                                (geo) => geo.region === item.region
+                              )
+                                ?.country.find(
+                                  (c) => c.Country_Name === country.Country_Name
+                                )
+                                ?.Market_Team.find(
+                                  (t) =>
+                                    t.Market_Team_Name === team.Market_Team_Name
+                                )
+                                ?.Market.find(
+                                  (m) =>
+                                    m.Market_Name === selectedMarket.Market_Name
+                                );
+
+                              return (
+                                marketData &&
+                                marketData.Store.map((store) => (
+                                  <div
+                                    key={store.Store_Name}
+                                    className="geo-item"
+                                  >
+                                    <Checkbox
+                                      id={store.Store_Name}
+                                      onChange={(e) =>
+                                        addDataOfSelectedStore(
+                                          e,
+                                          item.region,
+                                          country.Country_Name,
+                                          team.Market_Team_Name,
+                                          selectedMarket.Market_Name,
+                                          store.Store_Name
+                                        )
+                                      }
+                                      checked={selectedMarket?.Store?.some(
+                                        (s) => s.Store_Name === store.Store_Name
+                                      )}
+                                    />
+                                    <label htmlFor={store.Store_Name}>
+                                      {store.Store_Name}
+                                    </label>
+                                  </div>
+                                ))
+                              );
+                            })
+                          )
                         )
-                      </p>
-                      <div className="border rounded-lg h-[15rem]  bg-blue-100 overflow-y-auto p-2">
-                        {filteredGeoData.length === 0 ? (
-                          <></>
-                        ) : (
-                          filteredGeoData.map((regionData) => (
-                            <div key={regionData.region} className="mb-2">
-                              {/* Region */}
-                              {selectedData.regions &&
-                                !selectedData.countries && (
-                                  <p className="">{regionData.region}</p>
-                                )}
+                      )}
+                      {!selectedData.markets && (
+                        <div className="empty-state">
+                          <p>Select a Market to see the list of Stores</p>
+                        </div>
+                      )}
+                    </div>
+                  </div>
 
-                              {regionData.country?.map((country) => (
-                                <div key={country.Country_Name}>
-                                  {/* Country */}
-                                  {selectedData.countries &&
-                                    !selectedData.marketTeams && (
-                                      <p>{country.Country_Name}</p>
-                                    )}
+                  {/* Selected Data Section */}
+                  <div className="geo-section geo-selected">
+                    <p>
+                      Selected (
+                      {selectedData.stores
+                        ? getSelectedStoreCount()
+                        : selectedData.markets
+                        ? getSelectedMarketCount()
+                        : selectedData.marketTeams
+                        ? getSelectedMarketTeamCount()
+                        : selectedData.countries
+                        ? getSelectedCountryCount()
+                        : selectedData.regions
+                        ? filteredGeoData.length
+                        : 0}
+                      )
+                    </p>
+                    <div className="geo-list geo-selected-list">
+                      {filteredGeoData.length === 0 ? (
+                        <></>
+                      ) : (
+                        filteredGeoData.map((regionData) => (
+                          <div
+                            key={regionData.region}
+                            className="geo-item-selected"
+                          >
+                            {/* Region */}
+                            {selectedData.regions &&
+                              !selectedData.countries && (
+                                <p>{regionData.region}</p>
+                              )}
 
-                                  {country.Market_Team?.map((marketTeam) => (
-                                    <div key={marketTeam.Market_Team_Name}>
-                                      {/* Market Team */}
-                                      {selectedData.marketTeams &&
-                                        !selectedData.markets && (
-                                          <p>{marketTeam.Market_Team_Name}</p>
-                                        )}
+                            {regionData.country?.map((country) => (
+                              <div key={country.Country_Name}>
+                                {/* Country */}
+                                {selectedData.countries &&
+                                  !selectedData.marketTeams && (
+                                    <p>{country.Country_Name}</p>
+                                  )}
 
-                                      {marketTeam.Market?.map((market) => (
-                                        <div key={market.Market_Name}>
-                                          {/* Market */}
-                                          {selectedData.markets &&
-                                            !selectedData.stores && (
-                                              <p>{market.Market_Name}</p>
+                                {country.Market_Team?.map((marketTeam) => (
+                                  <div key={marketTeam.Market_Team_Name}>
+                                    {/* Market Team */}
+                                    {selectedData.marketTeams &&
+                                      !selectedData.markets && (
+                                        <p>{marketTeam.Market_Team_Name}</p>
+                                      )}
+
+                                    {marketTeam.Market?.map((market) => (
+                                      <div key={market.Market_Name}>
+                                        {/* Market */}
+                                        {selectedData.markets &&
+                                          !selectedData.stores && (
+                                            <p>{market.Market_Name}</p>
+                                          )}
+
+                                        {market.Store?.map((store) => (
+                                          <div key={store.Store_Name}>
+                                            {selectedData.stores && (
+                                              <p>{store.Store_Name}</p>
                                             )}
-
-                                          {market.Store?.map((store) => (
-                                            <div key={store.Store_Name}>
-                                              {selectedData.stores && (
-                                                <p>{store.Store_Name}</p>
-                                              )}
-                                            </div>
-                                          ))}
-                                        </div>
-                                      ))}
-                                    </div>
-                                  ))}
-                                </div>
-                              ))}
-                            </div>
-                          ))
-                        )}
-                      </div>
+                                          </div>
+                                        ))}
+                                      </div>
+                                    ))}
+                                  </div>
+                                ))}
+                              </div>
+                            ))}
+                          </div>
+                        ))
+                      )}
                     </div>
                   </div>
                 </div>
               </div>
               {error.geo && (
-                <p className="text-sm text-red-600">
+                <p className="error-message">
                   Please select the data you want to add from Geo
                 </p>
               )}
-              <div className="grid grid-cols-4 grid-rows-3 w-full justify-items-center gap-x-10">
-                <div className="flex flex-col w-full">
+              <div className="form-container">
+                <div className="form-group">
                   <label>LOB</label>
                   <TreeSelect
                     status={error.lob ? "error" : ""}
@@ -1159,11 +1141,11 @@ export default function InputModal({
                     value={selectableData.lob}
                   />
                 </div>
-                <div className="flex flex-col w-full">
+                <div className="form-group">
                   <label>Metric Type</label>
                   <input
                     placeholder="%"
-                    className="rounded w-full border p-1 px-2 border-slate-200"
+                    className="input-field"
                     onChange={(e) =>
                       setInputData({
                         ...InputData,
@@ -1173,11 +1155,11 @@ export default function InputModal({
                     value={InputData.metric_type}
                   />
                 </div>
-                <div className="flex flex-col w-full">
+                <div className="form-group">
                   <label>Benchmark Value</label>
                   <input
                     placeholder="%"
-                    className="rounded w-full border p-1 px-2 border-slate-200"
+                    className="input-field"
                     onChange={(e) =>
                       setInputData({
                         ...InputData,
@@ -1187,11 +1169,11 @@ export default function InputModal({
                     value={InputData.benchmark_value}
                   />
                 </div>
-                <div className="flex flex-col w-full">
+                <div className="form-group">
                   <label>Metric Weightage</label>
                   <input
                     placeholder="%"
-                    className="rounded w-full border p-1 px-2 border-slate-200"
+                    className="input-field"
                     onChange={(e) =>
                       setInputData({
                         ...InputData,
@@ -1201,7 +1183,7 @@ export default function InputModal({
                     value={InputData.metric_weightage}
                   />
                 </div>
-                <div className="flex flex-col w-full">
+                <div className="form-group">
                   <label>RTM</label>
                   <Select
                     status={error.rtm ? "error" : ""}
@@ -1217,11 +1199,11 @@ export default function InputModal({
                     value={selectableData.rtm}
                   />
                 </div>
-                <div className="flex flex-col w-full">
+                <div className="form-group">
                   <label>Metric Ceiling</label>
                   <input
                     placeholder="%"
-                    className="rounded w-full border p-1 px-2 border-slate-200"
+                    className="input-field"
                     onChange={(e) =>
                       setInputData({
                         ...InputData,
@@ -1231,11 +1213,11 @@ export default function InputModal({
                     value={InputData.metric_ceiling}
                   />
                 </div>
-                <div className="flex flex-col w-full">
-                  <label>Metric floor</label>
+                <div className="form-group">
+                  <label>Metric Floor</label>
                   <input
                     placeholder="%"
-                    className="rounded w-full border p-1 px-2 border-slate-200"
+                    className="input-field"
                     onChange={(e) =>
                       setInputData({
                         ...InputData,
@@ -1245,11 +1227,11 @@ export default function InputModal({
                     value={InputData.metric_floor}
                   />
                 </div>
-                <div className="flex flex-col w-full">
+                <div className="form-group">
                   <label>Metric Sign</label>
                   <input
                     placeholder="%"
-                    className="rounded w-full border p-1 px-2 border-slate-200"
+                    className="input-field"
                     onChange={(e) =>
                       setInputData({
                         ...InputData,
@@ -1259,7 +1241,7 @@ export default function InputModal({
                     value={InputData.metric_sign}
                   />
                 </div>
-                <div className="flex flex-col w-full">
+                <div className="form-group">
                   <label>Same day Domestic</label>
                   <Select
                     status={error.same_day_domestic ? "error" : ""}
@@ -1281,11 +1263,11 @@ export default function InputModal({
                     value={selectableData.same_day_domestic}
                   />
                 </div>
-                <div className="flex flex-col w-full">
+                <div className="form-group">
                   <label>Benchmark Ceiling</label>
                   <input
                     placeholder="%"
-                    className="rounded w-full border p-1 px-2 border-slate-200"
+                    className="input-field"
                     onChange={(e) =>
                       setInputData({
                         ...InputData,
@@ -1295,7 +1277,7 @@ export default function InputModal({
                     value={InputData.benchmark_ceiling}
                   />
                 </div>
-                <div className="flex flex-col w-full">
+                <div className="form-group">
                   <label>Benchmark Logic Type</label>
                   <Select
                     options={[
@@ -1313,7 +1295,7 @@ export default function InputModal({
                     value={selectableData.benchmark_logic_type}
                   />
                 </div>
-                <div className="flex flex-col w-full">
+                <div className="form-group">
                   <label>Ranking Metric</label>
                   <Select
                     status={error.ranking_metric ? "error" : ""}
@@ -1339,90 +1321,117 @@ export default function InputModal({
             </>
           )}
           {current === 1 && (
-            <>
-              <div className="flex flex-col gap-5">
-                <h4>Ready to create ({previewData.newData.length})</h4>
-                <table className="w-full">
-                  <thead>
-                    <tr className="bg-slate-50 ">
-                      <td className="p-2 ">Metric Name</td>
-                      <td className="text-center">Geo</td>
-                      <td className="text-center">LOB</td>
-                      <td className="text-center">RTM</td>
-                      <td className="text-center">Same day Domestic</td>
-                      <td className="text-center">Metric Weightage</td>
-                      <td>Metric Type</td>
-                      <td>Benchmark Value</td>
+            <div className="metrics-container">
+              <h4 className="section-title">
+                Ready to create ({previewData.newData.length})
+              </h4>
+              <table className="metrics-table">
+                <thead>
+                  <tr className="table-header">
+                    <td className="header-cell">Metric Name</td>
+                    <td className="header-cell text-center">Geo</td>
+                    <td className="header-cell text-center">LOB</td>
+                    <td className="header-cell text-center">RTM</td>
+                    <td className="header-cell text-center">
+                      Same day Domestic
+                    </td>
+                    <td className="header-cell text-center">
+                      Metric Weightage
+                    </td>
+                    <td className="header-cell">Metric Type</td>
+                    <td className="header-cell">Benchmark Value</td>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr className="empty-row">
+                    <td colSpan={15} className="padding-5"></td>
+                  </tr>
+                  {previewData.newData.map((data, index) => (
+                    <tr key={index} className="data-row">
+                      <td className="data-cell">{`${
+                        selectedMetric?.Metric_Name + " - " + data.LOB
+                      }`}</td>
+                      <td className="data-cell text-center">
+                        {data.Geo || "-"}
+                      </td>
+                      <td className="data-cell text-center">
+                        {data.LOB || "-"}
+                      </td>
+                      <td className="data-cell text-center">
+                        {data.RTM || "-"}
+                      </td>
+                      <td className="data-cell text-center">
+                        {data.Domestric || "-"}
+                      </td>
+                      <td className="data-cell text-center">
+                        {data.Metric_Weightage || "-"}
+                      </td>
+                      <td className="data-cell text-center">
+                        {data.Metric_type || "-"}
+                      </td>
+                      <td className="data-cell text-center">
+                        {data.Benchmark_value || "-"}
+                      </td>
                     </tr>
-                  </thead>
-                  <tbody>
-                    <tr className="bg-slate-100 border-b border-slate-300 ">
-                      <td colSpan={15} className="p-5"></td>
+                  ))}
+                </tbody>
+              </table>
+
+              <h4 className="section-title">
+                Already exists ({previewData.existingData.length})
+              </h4>
+              <table className="metrics-table">
+                <thead>
+                  <tr className="table-header">
+                    <td className="header-cell">Metric Name</td>
+                    <td className="header-cell text-center">Geo</td>
+                    <td className="header-cell text-center">LOB</td>
+                    <td className="header-cell text-center">RTM</td>
+                    <td className="header-cell text-center">
+                      Same day Domestic
+                    </td>
+                    <td className="header-cell text-center">
+                      Metric Weightage
+                    </td>
+                    <td className="header-cell">Metric Type</td>
+                    <td className="header-cell">Benchmark Value</td>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr className="empty-row">
+                    <td colSpan={15} className="padding-5"></td>
+                  </tr>
+                  {previewData.existingData.map((data, index) => (
+                    <tr key={index} className="data-row">
+                      <td className="data-cell">{`${
+                        selectedMetric?.Metric_Name + " - " + data.LOB
+                      }`}</td>
+                      <td className="data-cell text-center">
+                        {data.Geo || "-"}
+                      </td>
+                      <td className="data-cell text-center">
+                        {data.LOB || "-"}
+                      </td>
+                      <td className="data-cell text-center">
+                        {data.RTM || "-"}
+                      </td>
+                      <td className="data-cell text-center">
+                        {data.Domestric || "-"}
+                      </td>
+                      <td className="data-cell text-center">
+                        {data.Metric_Weightage || "-"}
+                      </td>
+                      <td className="data-cell text-center">
+                        {data.Metric_type || "-"}
+                      </td>
+                      <td className="data-cell text-center">
+                        {data.Benchmark_value || "-"}
+                      </td>
                     </tr>
-                    {previewData.newData.map((data, index) => (
-                      <tr key={index} className="border-b border-slate-300 ">
-                        <td className="p-2">{`${
-                          selectedMetric?.Metric_Name + " - " + data.LOB
-                        }`}</td>
-                        <td className="text-center">{data.Geo || "-"}</td>
-                        <td className="text-center">{data.LOB || "-"}</td>
-                        <td className="text-center">{data.RTM || "-"}</td>
-                        <td className="text-center">{data.Domestric || "-"}</td>
-                        <td className="text-center">
-                          {data.Metric_Weightage || "-"}
-                        </td>
-                        <td className="text-center">
-                          {data.Metric_type || "-"}
-                        </td>
-                        <td className="text-center">
-                          {data.Benchmark_value || "-"}
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-                <h4>Already exists ({previewData.existingData.length})</h4>
-                <table className="w-full">
-                  <thead>
-                    <tr className="bg-slate-50 ">
-                      <td className="p-2 ">Metric Name</td>
-                      <td className="text-center">Geo</td>
-                      <td className="text-center">LOB</td>
-                      <td className="text-center">RTM</td>
-                      <td className="text-center">Same day Domestic</td>
-                      <td className="text-center">Metric Weightage</td>
-                      <td>Metric Type</td>
-                      <td>Benchmark Value</td>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    <tr className="bg-slate-100 border-b border-slate-300 ">
-                      <td colSpan={15} className="p-5"></td>
-                    </tr>
-                    {previewData.existingData.map((data, index) => (
-                      <tr key={index} className="border-b border-slate-300 ">
-                        <td className="p-2">{`${
-                          selectedMetric?.Metric_Name + " - " + data.LOB
-                        }`}</td>
-                        <td className="text-center">{data.Geo || "-"}</td>
-                        <td className="text-center">{data.LOB || "-"}</td>
-                        <td className="text-center">{data.RTM || "-"}</td>
-                        <td className="text-center">{data.Domestric || "-"}</td>
-                        <td className="text-center">
-                          {data.Metric_Weightage || "-"}
-                        </td>
-                        <td className="text-center">
-                          {data.Metric_type || "-"}
-                        </td>
-                        <td className="text-center">
-                          {data.Benchmark_value || "-"}
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-            </>
+                  ))}
+                </tbody>
+              </table>
+            </div>
           )}
         </div>
       </Modal>

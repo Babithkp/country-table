@@ -4,7 +4,7 @@ import { BiSolidRightArrow } from "react-icons/bi";
 import { BiSolidDownArrow } from "react-icons/bi";
 
 import { TreeSelect } from "antd";
-import "./app.scss";
+import "./home.scss";
 import InputModal from "./components/InputModal";
 
 const data = [
@@ -320,7 +320,7 @@ function Home() {
   };
 
   return (
-    <main className="flex flex-col justify-center items-center ">
+    <main className="main-container">
       <InputModal
         isDialogOpen={isDialogOpen}
         setIsDialogOpen={setIsDialogOpen}
@@ -329,9 +329,9 @@ function Home() {
         setAutomotiveData={setAutomotiveData}
         setFilteredData={setFilteredData}
       />
-      <div className="flex justify-end w-[98%] gap-2 my-2">
+      <div className="actions-container">
         <button
-          className="font-medium bg-blue-400 p-2 rounded-md text-white"
+          className="expand-collapse-button"
           onClick={toggleAllDetailsHandler}
         >
           {filteredData.every(
@@ -342,17 +342,15 @@ function Home() {
             <>Expand All</>
           )}
         </button>
-        <button className="font-medium p-2 bg-red-500 rounded-md text-white">
-          Delete
-        </button>
+        <button className="delete-button">Delete</button>
       </div>
-      <table className="table-auto w-full">
-        <thead className="bg-slate-100 ">
-          <tr className=" ">
-            <th className="text-sm p-3">Actions</th>
-            <th className="text-sm p-3 ">
-              <div className="flex items-center gap-2 ">
-                <div className="">
+      <table className="table-container">
+        <thead className="table-header">
+          <tr>
+            <th className="action-column">Actions</th>
+            <th className="metric-id-column">
+              <div className="flex-container">
+                <div>
                   <BsFilterCircle
                     size={18}
                     onClick={() =>
@@ -361,65 +359,73 @@ function Home() {
                         Metric_ID: !prev.Metric_ID,
                       }))
                     }
-                    className="cursor-pointer"
+                    className="filter-icon"
                   />
                 </div>
                 <p>Metric ID</p>
               </div>
             </th>
-            <th className="text-sm p-3 flex items-center gap-2">
-              <div className=" ">
-                <BsFilterCircle
-                  size={18}
-                  onClick={() =>
-                    setFilterVisible((prev) => ({
-                      ...prev,
-                      Metric_Name: !prev.Metric_Name,
-                    }))
-                  }
-                  className="cursor-pointer"
-                />
-              </div>
-              <p>Metric Name</p>
-            </th>
-            <th className="text-sm p-3">
-              <div className="flex items-center gap-2">
-                <BsFilterCircle
-                  size={18}
-                  onClick={() =>
-                    setFilterVisible((prev) => ({ ...prev, Geo: !prev.Geo }))
-                  }
-                  className="cursor-pointer"
-                />
-                Geo
+            <th className="metric-name-column">
+              <div className="flex-container">
+                <div>
+                  <BsFilterCircle
+                    size={18}
+                    onClick={() =>
+                      setFilterVisible((prev) => ({
+                        ...prev,
+                        Metric_Name: !prev.Metric_Name,
+                      }))
+                    }
+                    className="filter-icon"
+                  />
+                </div>
+                <p>Metric Name</p>
               </div>
             </th>
-            <th className="text-sm p-3">
-              <div className="flex items-center gap-2">
-                <BsFilterCircle
-                  size={18}
-                  onClick={() =>
-                    setFilterVisible((prev) => ({ ...prev, LOB: !prev.LOB }))
-                  }
-                  className="cursor-pointer"
-                />
+            <th className="geo-column">
+              <div className="flex-container">
+                <div>
+                  <BsFilterCircle
+                    size={18}
+                    onClick={() =>
+                      setFilterVisible((prev) => ({ ...prev, Geo: !prev.Geo }))
+                    }
+                    className="filter-icon"
+                  />
+                </div>
+                <p>Geo</p>
+              </div>
+            </th>
+            <th className="lob-column">
+              <div className="flex-container">
+                <div>
+                  <BsFilterCircle
+                    size={18}
+                    onClick={() =>
+                      setFilterVisible((prev) => ({ ...prev, LOB: !prev.LOB }))
+                    }
+                    className="filter-icon"
+                  />
+                </div>
                 LOB
               </div>
             </th>
-            <th className="text-sm p-3">
-              <div className="flex items-center gap-2">
-                <BsFilterCircle
-                  size={18}
-                  onClick={() =>
-                    setFilterVisible((prev) => ({ ...prev, RTM: !prev.RTM }))
-                  }
-                  className="cursor-pointer"
-                />
+            <th className="rtm-column">
+              <div className="flex-container">
+                <div>
+                  <BsFilterCircle
+                    size={18}
+                    onClick={() =>
+                      setFilterVisible((prev) => ({ ...prev, RTM: !prev.RTM }))
+                    }
+                    className="filter-icon"
+                  />
+                </div>
                 RTM
               </div>
             </th>
-            <th className="text-sm p-3">
-              <div className="flex items-center gap-2">
+            <th className="domestic-column">
+              <div className="flex-container">
                 <div>
                   <BsFilterCircle
                     size={18}
@@ -429,28 +435,28 @@ function Home() {
                         Domestric: !prev.Domestric,
                       }))
                     }
-                    className="cursor-pointer"
+                    className="filter-icon"
                   />
                 </div>
                 <p>Same day Domestic</p>
               </div>
             </th>
-            <th className="text-sm p-3">Metric Type</th>
-            <th className="text-sm p-3">Benchmark value</th>
-            <th className="text-sm p-3">Metric Weightage</th>
-            <th className="text-sm p-3">Metric Ceiling</th>
-            <th className="text-sm p-3">Metric Floor</th>
-            <th className="text-sm p-3">Metric Sign</th>
-            <th className="text-sm p-3">Benchmark Ceiling</th>
-            <th className="text-sm p-3">Benchmark Logic type</th>
-            <th className="text-sm p-3">Ranking Metric</th>
+            <th>Metric Type</th>
+            <th>Benchmark value</th>
+            <th>Metric Weightage</th>
+            <th>Metric Ceiling</th>
+            <th>Metric Floor</th>
+            <th>Metric Sign</th>
+            <th>Benchmark Ceiling</th>
+            <th>Benchmark Logic type</th>
+            <th>Ranking Metric</th>
           </tr>
           <tr>
             <td></td>
             {filterVisible.Metric_ID ? (
-              <td className={"w-[10%]"}>
+              <td className="metric-id-filter-column">
                 <TreeSelect
-                  className="w-full"
+                  className="tree-select"
                   treeCheckable
                   treeData={automotiveData.map((item) => ({
                     value: item.Metric_ID,
@@ -465,9 +471,9 @@ function Home() {
               <td></td>
             )}
             {filterVisible.Metric_Name ? (
-              <td className="w-[15%]">
+              <td className="metric-name-filter-column">
                 <TreeSelect
-                  className="w-full"
+                  className="tree-select"
                   treeCheckable
                   treeData={automotiveData.map((item) => ({
                     value: item.Metric_Name,
@@ -478,13 +484,13 @@ function Home() {
                   onChange={filterByMetricName}
                 />
               </td>
-            ) : (
+            ): (
               <td></td>
             )}
             {filterVisible.Geo ? (
-              <td className="w-[10%]">
+              <td className="geo-filter-column">
                 <TreeSelect
-                  className="w-full"
+                  className="tree-select"
                   treeCheckable
                   treeData={getUniqueGeoData(automotiveData)}
                   placeholder="Geo"
@@ -494,13 +500,13 @@ function Home() {
                   onChange={filterByGeo}
                 />
               </td>
-            ) : (
+            ): (
               <td></td>
             )}
             {filterVisible.LOB ? (
-              <td className="w-[10%]">
+              <td className="lob-filter-column">
                 <TreeSelect
-                  className="w-full"
+                  className="tree-select"
                   treeCheckable
                   treeData={getUniqueLOBData(automotiveData)}
                   placeholder="LOB"
@@ -510,13 +516,13 @@ function Home() {
                   onChange={filterByLob}
                 />
               </td>
-            ) : (
+            ): (
               <td></td>
             )}
             {filterVisible.RTM ? (
-              <td className="w-[10%]">
+              <td className="rtm-filter-column">
                 <TreeSelect
-                  className="w-full"
+                  className="tree-select"
                   treeCheckable
                   treeData={getUniqueRtmData(automotiveData)}
                   placeholder="RTM"
@@ -526,13 +532,13 @@ function Home() {
                   onChange={filterByRtm}
                 />
               </td>
-            ) : (
+            ): (
               <td></td>
             )}
             {filterVisible.Domestric ? (
-              <td className="w-[10%]">
+              <td className="domestic-filter-column">
                 <TreeSelect
-                  className="w-full"
+                  className="tree-select"
                   treeCheckable
                   treeData={getUniqueDomestricData(automotiveData)}
                   placeholder="Same day Domestic"
@@ -544,27 +550,27 @@ function Home() {
                   onChange={filterByDomestric}
                 />
               </td>
-            ) : (
+            ): (
               <td></td>
             )}
-            <td colSpan={3}></td>
+            <td colSpan={15}></td>
           </tr>
         </thead>
 
-        <tbody className="text-[#93969CFF]">
+        <tbody className="table-body">
           {filteredData.map((item, i) => (
             <Fragment key={i}>
-              <tr className="bg-gray-200 border-b border-slate-400 ">
-                <td className="flex justify-center">
+              <tr className="item-row">
+                <td className="actions-column">
                   <button
-                    className="flex justify-center"
+                    className="actions-button"
                     onClick={() => openModal(item.Metric_ID, item.Metric_Name)}
                   >
                     <IoIosAddCircleOutline size={24} color="#93969CFF" />
                   </button>
                 </td>
-                <td className="">
-                  <div className="flex items-center gap-2 ">
+                <td className="metric-id-column">
+                  <div className="flex-container">
                     <button
                       onClick={() => toggleDetailsHandler(item.Metric_ID)}
                     >
@@ -581,10 +587,10 @@ function Home() {
                 <td colSpan={6}>
                   <p>{item.Metric_Name}</p>
                 </td>
-                <td className="">
+                <td className="benchmark-value-column">
                   <div className="flex">
                     <input
-                      className="border mx-auto bg-white border-[#93969CFF] rounded w-1/2 px-2"
+                      className="benchmark-input"
                       placeholder="%"
                       onChange={(e) =>
                         filterByBenchMarkValue(item.Metric_ID, e.target.value)
@@ -592,10 +598,10 @@ function Home() {
                     />
                   </div>
                 </td>
-                <td className="">
+                <td className="metric-weightage-column">
                   <div className="flex">
                     <input
-                      className="border mx-auto bg-white border-[#93969CFF] rounded w-1/2 px-2"
+                      className="weightage-input"
                       placeholder="%"
                       onChange={(e) =>
                         filterByWeightageValue(item.Metric_ID, e.target.value)
@@ -606,32 +612,50 @@ function Home() {
                 <td colSpan={6}></td>
               </tr>
               {item.Details?.map((insideItem, i) => (
-                <tr key={i} className="border-b border-slate-400">
+                <tr key={i} className="details-row">
                   <td colSpan={2}></td>
-                  <td className="">
+                  <td className="detail-name-column">
                     {item.Metric_Name + " - " + insideItem.LOB}
                   </td>
-                  <td className="text-center">{insideItem.Geo}</td>
-                  <td className="text-center">{insideItem.LOB}</td>
-                  <td className="text-center">{insideItem.RTM}</td>
-                  <td className="text-center">{insideItem.Domestric}</td>
-                  <td className="text-center">{insideItem.Metric_type}</td>
-                  <td className="text-center">{insideItem.Benchmark_value}%</td>
-                  <td className="text-center">
+                  <td className="detail-geo-column text-center">
+                    {insideItem.Geo}
+                  </td>
+                  <td className="detail-lob-column text-center">
+                    {insideItem.LOB}
+                  </td>
+                  <td className="detail-rtm-column text-center">
+                    {insideItem.RTM}
+                  </td>
+                  <td className="detail-domestic-column text-center">
+                    {insideItem.Domestric}
+                  </td>
+                  <td className="detail-metric-type-column text-center">
+                    {insideItem.Metric_type}
+                  </td>
+                  <td className="detail-benchmark-value-column text-center">
+                    {insideItem.Benchmark_value}%
+                  </td>
+                  <td className="detail-metric-weightage-column text-center">
                     {insideItem.Metric_Weightage}%
                   </td>
-                  <td className="text-center">
+                  <td className="detail-benchmark-ceiling-column text-center">
                     {insideItem.Benchmark_Ceiling}
                   </td>
-                  <td className="text-center">{insideItem.Metric_Floor}</td>
-                  <td className="text-center">{insideItem.Metric_Sign}</td>
-                  <td className="text-center">
+                  <td className="detail-metric-floor-column text-center">
+                    {insideItem.Metric_Floor}
+                  </td>
+                  <td className="detail-metric-sign-column text-center">
+                    {insideItem.Metric_Sign}
+                  </td>
+                  <td className="detail-benchmark-ceiling-column text-center">
                     {insideItem.Benchmark_Ceiling}
                   </td>
-                  <td className="text-center">
+                  <td className="detail-benchmark-logic-type-column text-center">
                     {insideItem.Benchmark_Logic_type}
                   </td>
-                  <td className="text-center">{insideItem.Ranking_Metric}</td>
+                  <td className="detail-ranking-metric-column text-center">
+                    {insideItem.Ranking_Metric}
+                  </td>
                 </tr>
               ))}
             </Fragment>
