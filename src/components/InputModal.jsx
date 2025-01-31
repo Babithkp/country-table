@@ -181,7 +181,7 @@ export default function InputModal({
       // Check if entry exists in automotiveData based on country & LOB
       const exists = automotiveData.some((auto) =>
         auto.Details.some(
-          (detail) => detail.Geo === entry.Country && detail.LOB === entry.LOB
+          (detail) => detail.Geo === entry.Geo && detail.LOB === entry.LOB
         )
       );
 
@@ -234,86 +234,87 @@ export default function InputModal({
 
     const finalData = [];
 
+    // 🔹 Define additional fields once to avoid repetition
+    const additionalFields = {
+      RTM: selectableData.rtm || "",
+      Domestric: selectableData.same_day_domestic || "",
+      Ranking_Metric: selectableData.ranking_metric || "",
+      Benchmark_Logic_type: selectableData.benchmark_logic_type || "",
+      Metric_type: InputData.metric_type || "",
+      Benchmark_value: InputData.benchmark_value || "",
+      Metric_Weightage: InputData.metric_weightage || "",
+      Metric_Ceiling: InputData.metric_ceiling || "",
+      Metric_Floor: InputData.metric_floor || "",
+      Metric_Sign: InputData.metric_sign || "",
+      Benchmark_Ceiling: InputData.benchmark_ceiling || "",
+    };
+
     // 🔹 Identify the most recent `true` level in `selectedData`
     const activeLevel = Object.keys(selectedData)
       .reverse()
       .find((key) => selectedData[key]); // Gets the last `true` key
 
     filteredGeoData.forEach((region) => {
-      let regionData = {
-        Geo: region.region || "",
-        Country: "",
-        Market_Team: "",
-        Market: "",
-        Store: "",
-        LOB: "",
-        RTM: selectableData.rtm || "",
-        Domestric: selectableData.same_day_domestic || "",
-        ranking_metric: selectableData.ranking_metric || "",
-        benchmark_logic_type: selectableData.benchmark_logic_type || "",
-        Metric_type: InputData.metric_type || "",
-        Benchmark_value: InputData.benchmark_value || "",
-        Metric_Weightage: InputData.metric_weightage || "",
-        Metric_Ceiling: InputData.metric_ceiling || "",
-        Metric_Floor: InputData.metric_floor || "",
-        Metric_Sign: InputData.metric_sign || "",
-        Benchmark_Ceiling: InputData.benchmark_ceiling || "",
-      };
-
       if (activeLevel === "regions") {
         selectableData.lob.forEach((lob) => {
-          finalData.push({ ...regionData, LOB: lob });
+          finalData.push({
+            Geo: region.region || "Result",
+            LOB: lob,
+            ...additionalFields,
+          });
         });
         return;
       }
 
       region.country?.forEach((country) => {
-        let countryData = {
-          ...regionData,
-          Country: country.Country_Name || "",
-        };
-
         if (activeLevel === "countries") {
           selectableData.lob.forEach((lob) => {
-            finalData.push({ ...countryData, LOB: lob });
+            finalData.push({
+              Geo: country.Country_Name || "Result",
+              LOB: lob,
+              ...additionalFields,
+            });
           });
           return;
         }
 
         country.Market_Team?.forEach((team) => {
-          let teamData = {
-            ...countryData,
-            Market_Team: team.Market_Team_Name || "",
-          };
-
           if (activeLevel === "marketTeams") {
             selectableData.lob.forEach((lob) => {
-              finalData.push({ ...teamData, LOB: lob });
+              finalData.push({
+                Geo: team.Market_Team_Name || "Result",
+                LOB: lob,
+                ...additionalFields,
+              });
             });
             return;
           }
 
           team.Market?.forEach((market) => {
-            let marketData = { ...teamData, Market: market.Market_Name || "" };
-
             if (activeLevel === "markets") {
               selectableData.lob.forEach((lob) => {
-                finalData.push({ ...marketData, LOB: lob });
+                finalData.push({
+                  Geo: market.Market_Name || "Result",
+                  LOB: lob,
+                  ...additionalFields,
+                });
               });
               return;
             }
 
             market.Store?.forEach((store) => {
-              let storeData = { ...marketData, Store: store.Store_Name || "" };
-
               if (activeLevel === "stores") {
                 selectableData.lob.forEach((lob) => {
-                  finalData.push({ ...storeData, LOB: lob });
+                  finalData.push({
+                    Geo: store.Store_Name || "Result",
+                    LOB: lob,
+                    ...additionalFields,
+                  });
                 });
                 return;
               }
 
-              finalData.push(storeData);
+              finalData.push({ Geo: "Result", ...additionalFields });
             });
           });
         });
@@ -1363,9 +1364,7 @@ export default function InputModal({
                         <td className="p-2">{`${
                           selectedMetric?.Metric_Name + " - " + data.LOB
                         }`}</td>
-                        <td className="text-center">
-                          {data.Country || data.Geo || "-"}
-                        </td>
+                        <td className="text-center">{data.Geo || "-"}</td>
                         <td className="text-center">{data.LOB || "-"}</td>
                         <td className="text-center">{data.RTM || "-"}</td>
                         <td className="text-center">{data.Domestric || "-"}</td>
@@ -1405,9 +1404,7 @@ export default function InputModal({
                         <td className="p-2">{`${
                           selectedMetric?.Metric_Name + " - " + data.LOB
                         }`}</td>
-                        <td className="text-center">
-                          {data.Country || data.Geo || "-"}
-                        </td>
+                        <td className="text-center">{data.Geo || "-"}</td>
                         <td className="text-center">{data.LOB || "-"}</td>
                         <td className="text-center">{data.RTM || "-"}</td>
                         <td className="text-center">{data.Domestric || "-"}</td>

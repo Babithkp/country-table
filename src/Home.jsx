@@ -1,5 +1,4 @@
-import { Fragment, useState } from "react";
-import { BsFilterCircle } from "react-icons/bs";
+import { Fragment, useState } from "react";import { BsFilterCircle } from "react-icons/bs";
 import { IoIosAddCircleOutline } from "react-icons/io";
 import { BiSolidRightArrow } from "react-icons/bi";
 import { BiSolidDownArrow } from "react-icons/bi";
@@ -15,7 +14,7 @@ const data = [
     Details: [
       {
         Geo: "USA",
-        LOB: "Audi",
+        LOB: "Hatchback",
         RTM: "Drop-in",
         Domestric: "Yes",
         Metric_type: "%",
@@ -44,7 +43,7 @@ const data = [
         Ranking_Metric: "1",
       },
       {
-        Geo: "Uk",
+        Geo: "USA",
         LOB: "SUV",
         RTM: "Drop-in",
         Domestric: "Yes",
@@ -66,7 +65,7 @@ const data = [
     Details: [
       {
         Geo: "USA",
-        LOB: "Audi",
+        LOB: "Hatchback",
         RTM: "Drop-in",
         Domestric: "Yes",
         Metric_type: "%",
