@@ -1,4 +1,5 @@
-import { Checkbox, Modal, Steps, TreeSelect } from "antd";import { useEffect, useState } from "react";
+import { Checkbox, Modal, Steps, TreeSelect } from "antd";
+import { useEffect, useState } from "react";
 import { IoSearch } from "react-icons/io5";
 import { Select } from "antd";
 import { GEOData } from "../constant";
